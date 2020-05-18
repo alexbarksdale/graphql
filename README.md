@@ -20,7 +20,7 @@
 ### Resolver Arguments
 They are as follows in the exact order 
 - There are `4` arguments that get passed to all resolver functions
-- parent: useful when working with relational data. e.g a user having many posts 
+- object: useful when working with relational data. e.g a user having many posts 
 - args: Contains the operation arguments supplied (like a regular func)
 - context (ctx): Good for contextual data like containing the id of the user
 - info: ...

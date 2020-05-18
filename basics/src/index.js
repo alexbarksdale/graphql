@@ -21,24 +21,37 @@ const posts = [
         title: 'Dog',
         body: 'dog body',
         published: true,
+        author: '1',
     },
     {
         id: '8',
         title: 'Cats',
         body: 'cat body',
         published: false,
+        author: '2',
+    },
+];
+
+const comments = [
+    {
+        id: '17',
+        text: 'Fluffy dog',
+        author: '1',
+    },
+    {
+        id: '82',
+        text: 'Naked cat',
+        author: '2',
     },
 ];
 
 // Type definitions (schema)
 const typeDefs = `
     type Query {
-        add(numbers: [Float!]!): Float!
-        greeting(name: String): String!
-        grades: [Int!]!
         posts(query: String): [Post!]!
-        me: User!
         users(query: String): [User!]!
+        comments: [Comment!]!
+        me: User!
         post: Post!
     }
     type User {
@@ -46,12 +59,20 @@ const typeDefs = `
         name: String!
         email: String!
         age: Int
+        posts: [Post!]!
+        comments: [Comment!]!
     }
     type Post {
         id: ID!
         title: String!
         body: String!
         published: Boolean!
+        author: User!
+    }
+    type Comment {
+        id: ID!
+        text: String!
+        author: User!
     }
 `;
 
@@ -77,6 +98,9 @@ const resolvers = {
                 return titleMatch || bodyMatch;
             });
         },
+        comments() {
+            return comments;
+        },
         me() {
             return {
                 id: '123',
@@ -85,19 +109,29 @@ const resolvers = {
                 age: 20,
             };
         },
-        greeting(_, args) {
-            const { name } = args;
-            if (name) return `Hello ${name}`;
-            return 'Hello';
+    },
+    // Runs if we provide a relational type
+    Post: {
+        author(obj) {
+            return users.find((user) => {
+                return user.id === obj.author;
+            });
         },
-        add(_, args) {
-            const { numbers } = args;
-            if (numbers.length === 0) return 0;
-
-            return numbers.reduce((accumulator, currVal) => accumulator + currVal);
+    },
+    // Runs if we provide a relational type
+    User: {
+        posts(obj) {
+            return posts.filter((post) => {
+                return post.author === obj.id;
+            });
         },
-        grades() {
-            return [99, , 76, 47];
+        comments(obj) {
+            return comments.filter((comment) => comment.author === obj.id);
+        },
+    },
+    Comment: {
+        author(obj) {
+            return users.find((user) => user.id === obj.author);
         },
     },
 };
@@ -110,4 +144,3 @@ const server = new GraphQLServer({
 server.start(() => {
     console.log('The server is up');
 });
-
