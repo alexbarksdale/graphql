@@ -1,5 +1,4 @@
 import { GraphQLServer } from 'graphql-yoga';
-import { v4 as uuidv4 } from 'uuid';
 
 // demo user data
 const users = [
@@ -56,11 +55,6 @@ const typeDefs = `
         comments: [Comment!]!
         me: User!
         post: Post!
-    }
-    type Mutation {
-        createUser(name: String!, email: String!, age: Int): User!
-        createPost(title: String!, body: String!, published: Boolean!, author: ID!): Post!
-        createComment(text: String!, author: ID!, post: ID!): Comment!
     }
     type User {
         id: ID!
@@ -120,90 +114,40 @@ const resolvers = {
             };
         },
     },
-    Mutation: {
-        createUser(_, args) {
-            const wasEmailTaken = users.some((user) => user.email === args.email);
-            if (wasEmailTaken) throw new Error('Email already taken');
-
-            const user = {
-                id: uuidv4(),
-                name: args.name,
-                email: args.email,
-                age: args.age,
-            };
-
-            users.push(user);
-            return user;
-        },
-        createPost(_, args) {
-            const userExits = users.some((user) => user.id == args.author);
-
-            if (!userExits) throw new Error('User not found');
-
-            const post = {
-                id: uuidv4(),
-                title: args.title,
-                body: args.body,
-                published: args.published,
-                author: args.author,
-            };
-
-            posts.push(post);
-            return post;
-        },
-        createComment(_, args) {
-            const userExists = users.some((user) => user.id === args.author);
-
-            const postExists = posts.some(
-                (post) => post.id === args.post && post.published
-            );
-            if (!postExists || !userExists) throw new Error('Unable to create comment');
-
-            const comment = {
-                id: uuidv4(),
-                text: args.text,
-                author: args.author,
-                post: args.post,
-            };
-
-            comments.push(comment);
-            return comment;
-        },
-    },
     // Runs if we provide a relational type
     Post: {
-        // parent refers to Post
-        author(parent) {
+        // obj refers to Post
+        author(obj) {
             return users.find((user) => {
-                return user.id === parent.author;
+                return user.id === obj.author;
             });
         },
-        // parent refers to Post
-        comments(parent) {
-            return comments.filter((comment) => comment.post === parent.id);
+        // obj refers to Post
+        comments(obj) {
+            return comments.filter((comment) => comment.post === obj.id);
         },
     },
     // Runs if we provide a relational type
     User: {
-        // parent refers to User
-        posts(parent) {
+        // obj refers to User
+        posts(obj) {
             return posts.filter((post) => {
-                return post.author === parent.id;
+                return post.author === obj.id;
             });
         },
-        // parent refers to User
-        comments(parent) {
-            return comments.filter((comment) => comment.author === parent.id);
+        // obj refers to User
+        comments(obj) {
+            return comments.filter((comment) => comment.author === obj.id);
         },
     },
     Comment: {
-        // parent refers to Comment
-        author(parent) {
-            return users.find((user) => user.id === parent.author);
+        // obj refers to Comment
+        author(obj) {
+            return users.find((user) => user.id === obj.author);
         },
-        // parent refers to Comment
-        post(parent) {
-            return posts.find((post) => post.id === parent.post);
+        // obj refers to Comment
+        post(obj) {
+            return posts.find((post) => post.id === obj.post);
         },
     },
 };
