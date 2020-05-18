@@ -24,3 +24,13 @@ They are as follows in the exact order
 - args: Contains the operation arguments supplied (like a regular func)
 - context (ctx): Good for contextual data like containing the id of the user
 - info: ...
+
+# Input Type
+- You can only have scalar values within a input type 
+```js
+input CreateUserInput {
+    name: String!
+    email: String!
+    age: Int
+}
+```

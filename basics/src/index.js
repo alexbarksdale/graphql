@@ -57,11 +57,13 @@ const typeDefs = `
         me: User!
         post: Post!
     }
+
     type Mutation {
-        createUser(name: String!, email: String!, age: Int): User!
-        createPost(title: String!, body: String!, published: Boolean!, author: ID!): Post!
-        createComment(text: String!, author: ID!, post: ID!): Comment!
+        createUser(data: CreateUserInput!): User!
+        createPost(data: CreatePostInput!): Post!
+        createComment(data: CreateCommentInput!): Comment!
     }
+
     type User {
         id: ID!
         name: String!
@@ -70,6 +72,12 @@ const typeDefs = `
         posts: [Post!]!
         comments: [Comment!]!
     }
+    input CreateUserInput {
+        name: String!
+        email: String!
+        age: Int
+    }
+
     type Post {
         id: ID!
         title: String!
@@ -78,11 +86,23 @@ const typeDefs = `
         author: User!
         comments: [Comment!]!
     }
+    input CreatePostInput {
+        title: String!
+        body: String!
+        published: Boolean!
+        author: ID!
+    }
+
     type Comment {
         id: ID!
         text: String!
         author: User!
         post: Post!
+    }
+    input CreateCommentInput {
+        text: String!
+        author: ID!
+        post: ID!
     }
 `;
 
@@ -122,48 +142,41 @@ const resolvers = {
     },
     Mutation: {
         createUser(_, args) {
-            const wasEmailTaken = users.some((user) => user.email === args.email);
+            const wasEmailTaken = users.some((user) => user.email === args.data.email);
             if (wasEmailTaken) throw new Error('Email already taken');
 
             const user = {
                 id: uuidv4(),
-                name: args.name,
-                email: args.email,
-                age: args.age,
+                ...args.data,
             };
 
             users.push(user);
             return user;
         },
         createPost(_, args) {
-            const userExits = users.some((user) => user.id == args.author);
+            const userExits = users.some((user) => user.id == args.data.author);
 
             if (!userExits) throw new Error('User not found');
 
             const post = {
                 id: uuidv4(),
-                title: args.title,
-                body: args.body,
-                published: args.published,
-                author: args.author,
+                ...args.data,
             };
 
             posts.push(post);
             return post;
         },
         createComment(_, args) {
-            const userExists = users.some((user) => user.id === args.author);
+            const userExists = users.some((user) => user.id === args.data.author);
 
             const postExists = posts.some(
-                (post) => post.id === args.post && post.published
+                (post) => post.id === args.data.post && post.published
             );
             if (!postExists || !userExists) throw new Error('Unable to create comment');
 
             const comment = {
                 id: uuidv4(),
-                text: args.text,
-                author: args.author,
-                post: args.post,
+                ...args.data,
             };
 
             comments.push(comment);
