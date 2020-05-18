@@ -17,16 +17,16 @@ const users = [
 
 const posts = [
     {
-        id: '10',
+        id: '5',
         title: 'Dog',
-        body: 'dog body',
+        body: 'Dog body',
         published: true,
         author: '1',
     },
     {
-        id: '8',
+        id: '6',
         title: 'Cats',
-        body: 'cat body',
+        body: 'Cat body',
         published: false,
         author: '2',
     },
@@ -34,14 +34,16 @@ const posts = [
 
 const comments = [
     {
-        id: '17',
-        text: 'Fluffy dog',
+        id: '10',
+        text: 'Dog comment',
         author: '1',
+        post: '5',
     },
     {
-        id: '82',
-        text: 'Naked cat',
+        id: '20',
+        text: 'Cat comment',
         author: '2',
+        post: '6',
     },
 ];
 
@@ -68,17 +70,19 @@ const typeDefs = `
         body: String!
         published: Boolean!
         author: User!
+        comments: [Comment!]!
     }
     type Comment {
         id: ID!
         text: String!
         author: User!
+        post: Post!
     }
 `;
 
-// Resolvers (functions)
 const resolvers = {
     Query: {
+        // This is known as a resolver
         users(_, args) {
             const { query } = args;
             if (!query) return users;
@@ -112,26 +116,38 @@ const resolvers = {
     },
     // Runs if we provide a relational type
     Post: {
+        // obj refers to Post
         author(obj) {
             return users.find((user) => {
                 return user.id === obj.author;
             });
         },
+        // obj refers to Post
+        comments(obj) {
+            return comments.filter((comment) => comment.post === obj.id);
+        },
     },
     // Runs if we provide a relational type
     User: {
+        // obj refers to User
         posts(obj) {
             return posts.filter((post) => {
                 return post.author === obj.id;
             });
         },
+        // obj refers to User
         comments(obj) {
             return comments.filter((comment) => comment.author === obj.id);
         },
     },
     Comment: {
+        // obj refers to Comment
         author(obj) {
             return users.find((user) => user.id === obj.author);
+        },
+        // obj refers to Comment
+        post(obj) {
+            return posts.find((post) => post.id === obj.post);
         },
     },
 };
