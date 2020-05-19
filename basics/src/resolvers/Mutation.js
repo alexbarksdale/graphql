@@ -55,7 +55,7 @@ export const Mutation = {
         return user;
     },
     createPost(_, args, ctx) {
-        const { db } = ctx;
+        const { db, pubsub } = ctx;
         const userExits = db.users.some((user) => user.id == args.data.author);
 
         if (!userExits) throw new Error('User not found');
@@ -66,6 +66,9 @@ export const Mutation = {
         };
 
         db.posts.push(post);
+
+        if (args.data.published) pubsub.publish('post', { post });
+
         return post;
     },
     deletePost(_, args, ctx) {
@@ -94,9 +97,9 @@ export const Mutation = {
         return post;
     },
     createComment(_, args, ctx) {
-        const { db } = ctx;
-        const userExists = db.users.some((user) => user.id === args.data.author);
+        const { db, pubsub } = ctx;
 
+        const userExists = db.users.some((user) => user.id === args.data.author);
         const postExists = db.posts.some(
             (post) => post.id === args.data.post && post.published
         );
@@ -108,6 +111,10 @@ export const Mutation = {
         };
 
         db.comments.push(comment);
+
+        // Updates subscribers
+        pubsub.publish(`comment ${args.data.post}`, { comment });
+
         return comment;
     },
     deleteComment(_, args, ctx) {

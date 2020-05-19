@@ -35,7 +35,7 @@ input CreateUserInput {
 }
 ```
 # Context
-- Useful when you want to share information across your GraphQL
+- Useful when you want to share information across your GraphQL resolvers
 ```js
 const server = new GraphQLServer({
     typeDefs: './src/schema.graphql',
