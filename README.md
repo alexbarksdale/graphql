@@ -22,7 +22,7 @@ They are as follows in the exact order
 - There are `4` arguments that get passed to all resolver functions
 - object: useful when working with relational data. e.g a user having many posts 
 - args: Contains the operation arguments supplied (like a regular func)
-- context (ctx): Good for contextual data like containing the id of the user
+- context (ctx): Useful when you want to share information across your GraphQL
 - info: ...
 
 # Input Type
@@ -33,4 +33,15 @@ input CreateUserInput {
     email: String!
     age: Int
 }
+```
+# Context
+- Useful when you want to share information across your GraphQL
+```js
+const server = new GraphQLServer({
+    typeDefs: './src/schema.graphql',
+    resolvers,
+    context: {
+        db,
+    },
+});
 ```
