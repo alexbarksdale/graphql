@@ -45,3 +45,13 @@ const server = new GraphQLServer({
     },
 });
 ```
+# TypeORM
+- By default TypeORM infers the type based on the Typescript type.
+```ts
+- This column is inferred as type String aka VARCHAR in the database
+@Column()
+title: string;
+```
+
+- `@Entity` - Creates a table or document depending on the database type
+- `@PrimaryGeneratedColumn` - marks the table generated as the primary column and auto increments the value 
