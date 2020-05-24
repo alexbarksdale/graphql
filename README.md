@@ -34,6 +34,7 @@ input CreateUserInput {
     age: Int
 }
 ```
+
 # Context
 - Useful when you want to share information across your GraphQL resolvers
 ```js
@@ -55,3 +56,14 @@ title: string;
 
 - `@Entity` - Creates a table or document depending on the database type
 - `@PrimaryGeneratedColumn` - marks the table generated as the primary column and auto increments the value 
+
+# TypeGraphQL
+- `@ObjectType()` - Marks a class as a `type` known to GraphQL
+- `@Field()` - Create a `type` known to GraphQL
+
+# Variables in GraphQL
+```graphql
+mutation Login($email: String!, $password:String!){
+  login(email: $email, password: $password)
+}
+```
